@@ -1,9 +1,10 @@
+#![warn(unused_must_use)]
+
 use clap::{App, Arg};
 use std::{
     error::Error,
     fs::File,
-    fs::OpenOptions,
-    io::{self, BufRead, BufReader, BufWriter, Write},
+    io::{self, BufRead, BufReader, Write},
 };
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -63,6 +64,7 @@ fn format_field(value: usize, show: bool) -> String {
     }
 }
 
+
 pub fn run(config: Config) -> MyResult<()> {
     let mut file = open(&config.in_file)
         .map_err(|e| format!("{}: {}", config.in_file, e))?;
@@ -90,7 +92,8 @@ pub fn run(config: Config) -> MyResult<()> {
          } else if line.trim_end() != last_line.trim_end() { // due to ends of line
             // distinct line
             // print!("{}{}", format_field(line_count, config.count), last_line);
-            output.write(format!("{}{}", format_field(line_count, config.count), last_line).as_bytes());
+            //output.write(format!("{}{}", format_field(line_count, config.count), last_line).as_bytes());
+            write!(output, "{}{}", format_field(line_count, config.count), last_line);
             last_line = line.clone();
             line_count = 1;
         } else {
@@ -103,7 +106,8 @@ pub fn run(config: Config) -> MyResult<()> {
     // last line of the file
     if line_count > 0 {
         // print!("{}{}", format_field(line_count, config.count), last_line);
-        output.write(format!("{}{}", format_field(line_count, config.count), last_line).as_bytes());
+        // output.write(format!("{}{}", format_field(line_count, config.count), last_line).as_bytes());
+        write!(output, "{}{}", format_field(line_count, config.count), last_line);
     }
 
     Ok(())
